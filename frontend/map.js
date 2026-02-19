@@ -1,6 +1,10 @@
 import { renderParcelDetails, setStatus } from "./sidebar.js";
 
-const API_BASE = window.URBANGUARD_API_BASE || "http://localhost:8000";
+const API_BASE =
+  window.URBANGUARD_API_BASE ||
+  (window.location?.origin && window.location.origin.startsWith("http")
+    ? window.location.origin
+    : "http://localhost:8000");
 const DEFAULT_CENTER = [17.385, 78.4867];
 const map = L.map("map", { zoomControl: true, preferCanvas: true }).setView(DEFAULT_CENTER, 11);
 const canvasRenderer = L.canvas({ padding: 0.5 });
