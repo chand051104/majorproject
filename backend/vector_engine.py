@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -7,6 +8,7 @@ from typing import Iterable
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import requests
 
 
 def _first_existing(root: Path, candidates: Iterable[str]) -> Path | None:
@@ -45,16 +47,59 @@ class VectorEngineConfig:
     max_buildings: int | None = 50000
     sample_seed: int = 42
     building_point_buffer_m: float = 4.0
+    layer_storage_dir: Path = Path(
+        os.getenv(
+            "URBANGUARD_LAYER_STORAGE_DIR",
+            str(Path(__file__).resolve().parent / "data" / "layers"),
+        )
+    )
+    layer_buildings_url: str = os.getenv("URBANGUARD_LAYER_BUILDINGS_URL", "")
+    layer_roads_url: str = os.getenv("URBANGUARD_LAYER_ROADS_URL", "")
+    layer_parcels_url: str = os.getenv("URBANGUARD_LAYER_PARCELS_URL", "")
+    layer_water_url: str = os.getenv("URBANGUARD_LAYER_WATER_URL", "")
+    layer_download_timeout_s: float = float(os.getenv("URBANGUARD_LAYER_DOWNLOAD_TIMEOUT", "120"))
 
 
 class VectorComplianceEngine:
     def __init__(self, config: VectorEngineConfig | None = None) -> None:
         self.config = config or VectorEngineConfig()
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
+        self.config.layer_storage_dir.mkdir(parents=True, exist_ok=True)
 
-    def _load_layer(self, candidates: list[str], required_name: str) -> gpd.GeoDataFrame:
+    def _download_to_storage(self, layer_key: str, url: str) -> Path | None:
+        if not url:
+            return None
+        target = self.config.layer_storage_dir / f"{layer_key}.parquet"
+        if target.exists():
+            return target
+        try:
+            with requests.get(url, stream=True, timeout=self.config.layer_download_timeout_s) as resp:
+                if resp.status_code != 200:
+                    return None
+                temp = target.with_suffix(".parquet.part")
+                with temp.open("wb") as f:
+                    for chunk in resp.iter_content(chunk_size=2 * 1024 * 1024):
+                        if chunk:
+                            f.write(chunk)
+                temp.replace(target)
+                return target
+        except Exception:
+            return None
+
+    def _load_layer(
+        self,
+        candidates: list[str],
+        required_name: str,
+        storage_key: str,
+        storage_url: str = "",
+    ) -> gpd.GeoDataFrame:
         resolved = [str((self.config.project_root / candidate).resolve()) for candidate in candidates]
         path = _first_existing(self.config.project_root, candidates)
+        if path is None and storage_url:
+            downloaded = self._download_to_storage(storage_key, storage_url)
+            if downloaded is not None:
+                path = downloaded
+                resolved.append(str(downloaded))
         if path is None:
             attempted = "; ".join(resolved)
             raise FileNotFoundError(
@@ -69,36 +114,48 @@ class VectorComplianceEngine:
     def load_layers(self) -> dict[str, gpd.GeoDataFrame]:
         buildings = self._load_layer(
             [
+                "backend/data/layers/buildings.parquet",
                 "data/processed/buildings.parquet",
                 "hyderabad_buildings.geojson",
                 "data/gis_layers/hyderabad/hyderabad_buildings.geojson",
             ],
             required_name="buildings",
+            storage_key="buildings",
+            storage_url=self.config.layer_buildings_url,
         )
         roads = self._load_layer(
             [
+                "backend/data/layers/roads.parquet",
                 "data/processed/roads.parquet",
                 "hyderabad_roads.geojson",
                 "data/gis_layers/hyderabad/hyderabad_roads.geojson",
             ],
             required_name="roads",
+            storage_key="roads",
+            storage_url=self.config.layer_roads_url,
         )
         parcels = self._load_layer(
             [
+                "backend/data/layers/parcels.parquet",
                 "data/processed/parcels.parquet",
                 "hyd_cadastral copy.geojson",
                 "data/gis_layers/hyderabad/hyd_cadastral.geojson",
                 "data/gis_layers/hyderabad/hyderabad_cadastral.geojson",
             ],
             required_name="parcels",
+            storage_key="parcels",
+            storage_url=self.config.layer_parcels_url,
         )
         water = self._load_layer(
             [
+                "backend/data/layers/water.parquet",
                 "data/processed/water.parquet",
                 "hyderabad_water.geojson",
                 "data/gis_layers/hyderabad/hyderabad_water.geojson",
             ],
             required_name="water",
+            storage_key="water",
+            storage_url=self.config.layer_water_url,
         )
         return {
             "buildings": buildings,

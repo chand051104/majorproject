@@ -129,6 +129,13 @@ Notes:
 - Control remote usage with `URBANGUARD_MAX_REMOTE_TILES`.
 - Set `URBANGUARD_HISTORICAL_XYZ_TEMPLATE` for image-based temporal differencing.
 - Use `async_run=true` on `/pipeline/run` for long jobs.
+- If GIS source files are too large for GitHub, provide direct parquet URLs via:
+  - `URBANGUARD_LAYER_BUILDINGS_URL`
+  - `URBANGUARD_LAYER_ROADS_URL`
+  - `URBANGUARD_LAYER_PARCELS_URL`
+  - `URBANGUARD_LAYER_WATER_URL`
+- Missing layers are downloaded once and cached in `URBANGUARD_LAYER_STORAGE_DIR` (default: `/Users/saichandra/Documents/urban_ai/backend/data/layers`).
+- Expected format for fallback URLs: GeoParquet with a valid `geometry` column (EPSG can be transformed in-engine).
 
 ## 7) Tests
 
@@ -164,4 +171,9 @@ This repository includes a `render.yaml` blueprint for Docker deployment.
 4. Set secret environment variables in Render dashboard:
    - `URBANGUARD_SENTINEL_CLIENT_ID`
    - `URBANGUARD_SENTINEL_CLIENT_SECRET`
+   - Optional layer fallback URLs if local processed layers are unavailable:
+     - `URBANGUARD_LAYER_BUILDINGS_URL`
+     - `URBANGUARD_LAYER_ROADS_URL`
+     - `URBANGUARD_LAYER_PARCELS_URL`
+     - `URBANGUARD_LAYER_WATER_URL`
 5. Deploy. Render will build using `Dockerfile` and route traffic to `/health`.
