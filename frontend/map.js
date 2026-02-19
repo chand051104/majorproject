@@ -15,6 +15,37 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 let violationsLayer = null;
+const specialIconCache = new Map();
+const SPECIAL_SIGNAL_RULES = [
+  { tokens: ["footpath_shop"], code: "S", label: "Footpath Shop", className: "symbol-shop" },
+  { tokens: ["street_vending"], code: "C", label: "Street Cart/Vending", className: "symbol-cart" },
+  { tokens: ["temporary_shed"], code: "T", label: "Temporary Shed/Tent", className: "symbol-tent" },
+  {
+    tokens: ["illegal_settlement", "informal_structure"],
+    code: "I",
+    label: "Informal/Illegal Settlement",
+    className: "symbol-settlement",
+  },
+  { tokens: ["road_shoulder_use"], code: "R", label: "Road Shoulder Occupation", className: "symbol-road" },
+];
+
+function parseSignalTokens(props) {
+  const rawTokens = `${props.encroachment_type || ""},${props.satellite_evidence || ""}`
+    .split(",")
+    .map((token) => token.trim().toLowerCase())
+    .filter((token) => token && token !== "none" && token !== "nan");
+  return new Set(rawTokens);
+}
+
+function specialSignalForFeature(props) {
+  const tokens = parseSignalTokens(props);
+  for (const rule of SPECIAL_SIGNAL_RULES) {
+    if (rule.tokens.some((token) => tokens.has(token))) {
+      return rule;
+    }
+  }
+  return null;
+}
 
 function colorForRisk(category) {
   if (category === "High") return "#da3a1b";
@@ -38,6 +69,27 @@ function radiusForScore(score) {
   if (value >= 50) return 6.5;
   if (value >= 35) return 5.5;
   return 4.5;
+}
+
+function iconForSpecialSignal(meta, category) {
+  const color = colorForRisk(category);
+  const key = `${meta.className}:${meta.code}:${color}`;
+  if (specialIconCache.has(key)) {
+    return specialIconCache.get(key);
+  }
+
+  const icon = L.divIcon({
+    className: `illegal-symbol-marker ${meta.className}`,
+    html:
+      `<span class="illegal-symbol-core" style="--risk-color:${color}">` +
+      `<span class="illegal-symbol-text">${meta.code}</span>` +
+      `</span>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+    popupAnchor: [0, -10],
+  });
+  specialIconCache.set(key, icon);
+  return icon;
 }
 
 async function fetchJson(url, init = {}) {
@@ -114,6 +166,14 @@ async function loadViolations() {
         const props = feature.properties || {};
         const category = props.risk_category;
         const score = props.final_violation_probability;
+        const specialSignal = specialSignalForFeature(props);
+        if (specialSignal) {
+          return L.marker(latlng, {
+            icon: iconForSpecialSignal(specialSignal, category),
+            title: specialSignal.label,
+            keyboard: false,
+          });
+        }
         return L.circleMarker(latlng, {
           radius: radiusForScore(score),
           color: colorForRisk(category),

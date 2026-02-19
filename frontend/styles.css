@@ -144,6 +144,7 @@ h1 {
 .legend {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
   padding: 0.2rem 0.35rem 0.35rem;
   color: var(--muted);
   font-size: 0.85rem;
@@ -167,6 +168,100 @@ h1 {
 
 .dot-low {
   background: var(--low);
+}
+
+.symbol-chip {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  margin-right: 0.35rem;
+  align-items: center;
+  justify-content: center;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  background: #25564b;
+  border: 1px solid #fff;
+  box-shadow: 0 1px 4px rgba(8, 34, 27, 0.3);
+}
+
+.symbol-shop {
+  border-radius: 4px;
+}
+
+.symbol-cart {
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+
+.symbol-cart > span {
+  transform: rotate(-45deg);
+}
+
+.symbol-tent {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.symbol-settlement {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+.symbol-road {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 72%, 50% 100%, 0% 72%);
+}
+
+.illegal-symbol-marker {
+  background: transparent;
+  border: 0;
+}
+
+.illegal-symbol-core {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--risk-color, #25564b);
+  border: 1.2px solid #fff;
+  box-shadow: 0 2px 7px rgba(6, 35, 26, 0.36);
+}
+
+.illegal-symbol-text {
+  line-height: 1;
+}
+
+.illegal-symbol-marker.symbol-shop .illegal-symbol-core {
+  border-radius: 4px;
+}
+
+.illegal-symbol-marker.symbol-cart .illegal-symbol-core {
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+
+.illegal-symbol-marker.symbol-cart .illegal-symbol-text {
+  transform: rotate(-45deg);
+}
+
+.illegal-symbol-marker.symbol-tent .illegal-symbol-core {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.illegal-symbol-marker.symbol-tent .illegal-symbol-text {
+  transform: translateY(3px);
+}
+
+.illegal-symbol-marker.symbol-settlement .illegal-symbol-core {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+.illegal-symbol-marker.symbol-road .illegal-symbol-core {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 72%, 50% 100%, 0% 72%);
 }
 
 .sidebar-card {
@@ -295,4 +390,3 @@ p {
     grid-template-columns: 1fr;
   }
 }
-
