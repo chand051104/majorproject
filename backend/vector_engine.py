@@ -53,9 +53,14 @@ class VectorComplianceEngine:
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
 
     def _load_layer(self, candidates: list[str], required_name: str) -> gpd.GeoDataFrame:
+        resolved = [str((self.config.project_root / candidate).resolve()) for candidate in candidates]
         path = _first_existing(self.config.project_root, candidates)
         if path is None:
-            raise FileNotFoundError(f"Could not find {required_name} layer in expected paths.")
+            attempted = "; ".join(resolved)
+            raise FileNotFoundError(
+                f"Could not find {required_name} layer in expected paths. "
+                f"project_root={self.config.project_root}; attempted={attempted}"
+            )
         gdf = _read_vector(path)
         if "geometry" not in gdf:
             raise ValueError(f"{required_name} layer has no geometry column: {path}")
