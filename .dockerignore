@@ -9,7 +9,13 @@ __pycache__
 venv
 .env
 backend/data
-data
+data/*
+!data/processed/
+data/processed/*
+!data/processed/buildings.parquet
+!data/processed/roads.parquet
+!data/processed/water.parquet
+!data/processed/parcels.parquet
 models/*.pt
 models/*.pkl
 tile_cache
