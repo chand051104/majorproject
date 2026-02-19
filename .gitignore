@@ -1,0 +1,23 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+backend/data/*.parquet
+backend/data/*.geojson
+backend/data/*.json
+backend/data/tile_cache/
+models/*.pt
+models/*.pkl
+.pytest_cache/
+*.log
+
+# Large raw GIS/source artifacts (keep outside git)
+hyd_cadastral copy.geojson
+hyderabad_buildings.geojson
+hyderabad_roads.geojson
+hyderabad_water.geojson
+violations_output.geojson
+data/**/*.geojson
+data/**/*.parquet
+data/

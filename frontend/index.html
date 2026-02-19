@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UrbanGuard AI Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="backdrop"></div>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">UrbanGuard AI</p>
+          <h1>Hyderabad Violation Detection Engine</h1>
+        </div>
+        <div class="topbar-actions">
+          <button id="runPipelineBtn" class="btn-primary" type="button">Run City Pipeline</button>
+          <span id="statusBadge" class="status-badge">Waiting for data</span>
+        </div>
+      </header>
+
+      <main class="content-grid">
+        <section class="map-card">
+          <div id="map"></div>
+          <div class="legend">
+            <span><i class="dot dot-high"></i>High</span>
+            <span><i class="dot dot-medium"></i>Medium</span>
+            <span><i class="dot dot-low"></i>Low</span>
+          </div>
+        </section>
+
+        <aside class="sidebar-card">
+          <div class="panel-section">
+            <p class="panel-label">Parcel ID</p>
+            <h2 id="parcelId">Select a parcel</h2>
+          </div>
+
+          <div class="panel-section score-panel">
+            <p class="panel-label">Final Violation Probability</p>
+            <div class="score-row">
+              <strong id="riskValue">--</strong>
+              <span id="riskCategory" class="chip">Unknown</span>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <p class="panel-label">Source Breakdown</p>
+            <div class="metric-grid">
+              <div>
+                <label>Vector Rules</label>
+                <strong id="scoreVector">--</strong>
+              </div>
+              <div>
+                <label>Satellite Vision</label>
+                <strong id="scoreSatellite">--</strong>
+              </div>
+              <div>
+                <label>Temporal Change</label>
+                <strong id="scoreTemporal">--</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <p class="panel-label">Encroachment Signals</p>
+            <p id="encroachmentType">--</p>
+            <p class="meta"><span>Satellite:</span> <span id="satEvidence">--</span></p>
+            <p class="meta"><span>Temporal:</span> <span id="beforeAfter">--</span></p>
+          </div>
+
+          <div class="panel-section">
+            <p class="panel-label">Rule Narrative</p>
+            <p id="ruleNarrative">--</p>
+          </div>
+
+          <div class="panel-section">
+            <p class="panel-label">Generated Legal Narrative</p>
+            <p id="legalNarrative">--</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script type="module" src="./map.js?v=20260219f"></script>
+  </body>
+</html>
