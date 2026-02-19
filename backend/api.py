@@ -12,6 +12,7 @@ import numpy as np
 try:
     from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
     from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.responses import RedirectResponse
     from fastapi.staticfiles import StaticFiles
 
     FASTAPI_AVAILABLE = True
@@ -20,6 +21,7 @@ except ImportError:
     HTTPException = Exception
     Query = None
     CORS = None
+    RedirectResponse = None
     FASTAPI_AVAILABLE = False
 
 try:
@@ -116,6 +118,16 @@ if FASTAPI_AVAILABLE:
 
     if FRONTEND_DIR.exists():
         app.mount("/dashboard", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="dashboard")
+
+    @app.get("/", include_in_schema=False)
+    def root() -> Any:
+        if FRONTEND_DIR.exists() and RedirectResponse is not None:
+            return RedirectResponse(url="/dashboard/")
+        return {
+            "service": "UrbanGuard AI API",
+            "health": "/health",
+            "docs": "/docs",
+        }
 
     @app.get("/health")
     def health() -> dict[str, Any]:
