@@ -80,6 +80,7 @@ class VectorComplianceEngine:
         )
         parcels = self._load_layer(
             [
+                "data/processed/parcels.parquet",
                 "hyd_cadastral copy.geojson",
                 "data/gis_layers/hyderabad/hyd_cadastral.geojson",
                 "data/gis_layers/hyderabad/hyderabad_cadastral.geojson",
