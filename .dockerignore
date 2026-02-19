@@ -1,0 +1,20 @@
+.git
+.gitignore
+.pytest_cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+venv
+.env
+backend/data
+data
+models/*.pt
+models/*.pkl
+tile_cache
+violations_output.geojson
+hyd_cadastral copy.geojson
+hyderabad_buildings.geojson
+hyderabad_roads.geojson
+hyderabad_water.geojson

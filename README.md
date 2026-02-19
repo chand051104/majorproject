@@ -153,3 +153,15 @@ venv/bin/python -m backend.cli train-risk \
 docker build -t urbanguard-ai .
 docker run -p 8000:8000 --env-file .env urbanguard-ai
 ```
+
+## 10) Render Deployment
+
+This repository includes a `render.yaml` blueprint for Docker deployment.
+
+1. Push repository to GitHub (`main` branch).
+2. In Render, choose **New +** -> **Blueprint**.
+3. Select this GitHub repository.
+4. Set secret environment variables in Render dashboard:
+   - `URBANGUARD_SENTINEL_CLIENT_ID`
+   - `URBANGUARD_SENTINEL_CLIENT_SECRET`
+5. Deploy. Render will build using `Dockerfile` and route traffic to `/health`.

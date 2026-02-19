@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: urbanguard-ai
+    runtime: docker
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: URBANGUARD_MAX_BUILDINGS
+        value: 500000
+      - key: URBANGUARD_PIPELINE_CHUNK_SIZE
+        value: 100000
+      - key: URBANGUARD_PARQUET_ROW_GROUP_SIZE
+        value: 50000
+      - key: URBANGUARD_WRITE_GEOJSON
+        value: "false"
+      - key: URBANGUARD_GEOJSON_MAX_ROWS
+        value: 200000
+      - key: URBANGUARD_TILE_ENABLED
+        value: "true"
+      - key: URBANGUARD_MAX_REMOTE_TILES
+        value: 1000
+      - key: URBANGUARD_SATELLITE_FETCH_WORKERS
+        value: 16
+      - key: URBANGUARD_TEMPORAL_FETCH_WORKERS
+        value: 16
+      - key: URBANGUARD_TEMPORAL_MAX_TILE_COMPARISONS
+        value: 3000
+      - key: URBANGUARD_SENTINEL_ENABLED
+        value: "true"
+      - key: URBANGUARD_SENTINEL_USE_CATALOG
+        value: "false"
+      - key: URBANGUARD_SENTINEL_CLIENT_ID
+        sync: false
+      - key: URBANGUARD_SENTINEL_CLIENT_SECRET
+        sync: false
