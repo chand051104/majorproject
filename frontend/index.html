@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link
@@ -19,84 +19,126 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="backdrop"></div>
-    <div class="app-shell">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">UrbanGuard AI</p>
-          <h1>Hyderabad Violation Detection Engine</h1>
-        </div>
-        <div class="topbar-actions">
-          <button id="runPipelineBtn" class="btn-primary" type="button">Run City Pipeline</button>
-          <span id="statusBadge" class="status-badge">Waiting for data</span>
-        </div>
-      </header>
+    <div class="layout-shell">
+      <aside class="left-rail" aria-label="Primary navigation">
+        <button class="rail-btn active" type="button" title="UrbanGuard">🛡️</button>
+        <button class="rail-btn" type="button" title="Map">🗺️</button>
+        <button class="rail-btn" type="button" title="Analytics">▦</button>
+      </aside>
 
-      <main class="content-grid">
-        <section class="map-card">
-          <div id="map"></div>
-          <div class="legend">
-            <span><i class="dot dot-high"></i>High</span>
-            <span><i class="dot dot-medium"></i>Medium</span>
-            <span><i class="dot dot-low"></i>Low</span>
-            <span><i class="symbol-chip symbol-shop"><span>S</span></i>Footpath shop</span>
-            <span><i class="symbol-chip symbol-cart"><span>C</span></i>Street cart</span>
-            <span><i class="symbol-chip symbol-tent"><span>T</span></i>Tent/shed</span>
-            <span><i class="symbol-chip symbol-settlement"><span>I</span></i>Informal settlement</span>
-            <span><i class="symbol-chip symbol-road"><span>R</span></i>Road shoulder</span>
+      <section class="workspace">
+        <header class="topbar">
+          <div class="brand-row">
+            <h1>UrbanGuard AI</h1>
+            <div class="city-pill" aria-label="Selected city">Hyderabad</div>
           </div>
-        </section>
-
-        <aside class="sidebar-card">
-          <div class="panel-section">
-            <p class="panel-label">Parcel ID</p>
-            <h2 id="parcelId">Select a parcel</h2>
+          <div class="topbar-right">
+            <span id="userScopeBadge" class="user-scope-badge" hidden>Not signed in</span>
+            <button id="runPipelineBtn" class="run-btn" type="button">Run Pipeline</button>
+            <button id="logoutBtn" class="logout-btn" type="button" hidden>Logout</button>
+            <span id="statusBadge" class="status-badge">Waiting for data</span>
           </div>
+        </header>
 
-          <div class="panel-section score-panel">
-            <p class="panel-label">Final Violation Probability</p>
-            <div class="score-row">
-              <strong id="riskValue">--</strong>
-              <span id="riskCategory" class="chip">Unknown</span>
+        <main class="content-grid">
+          <section class="map-panel">
+            <div id="map"></div>
+            <div class="risk-legend" aria-label="Risk legend">
+              <h3>RISK LEGEND</h3>
+              <p><i class="dot dot-high"></i>High Risk (&gt;75)</p>
+              <p><i class="dot dot-medium"></i>Medium Risk (40-75)</p>
+              <p><i class="dot dot-low"></i>Low Risk (&lt;40)</p>
             </div>
-          </div>
+          </section>
 
-          <div class="panel-section">
-            <p class="panel-label">Source Breakdown</p>
-            <div class="metric-grid">
+          <aside class="right-panel">
+            <section class="panel-card parcel-header">
               <div>
-                <label>Vector Rules</label>
-                <strong id="scoreVector">--</strong>
+                <h2 id="parcelId">Select a location</h2>
+                <p class="subtext">Violation Assessment Unit</p>
               </div>
-              <div>
-                <label>Satellite Vision</label>
-                <strong id="scoreSatellite">--</strong>
+              <span id="riskCategory" class="risk-chip">Unknown</span>
+            </section>
+
+            <section class="panel-card stat-grid">
+              <article class="stat-box">
+                <p>Risk Score</p>
+                <h3 id="riskValue">--</h3>
+              </article>
+              <article class="stat-box">
+                <p id="temporalMetricLabel">Temporal Change</p>
+                <h3 id="scoreTemporal">--</h3>
+              </article>
+            </section>
+
+            <section class="panel-card source-card">
+              <h3>Score Components</h3>
+              <div class="source-row"><span>Vector Rules</span><strong id="scoreVector">--</strong></div>
+              <div class="source-row"><span>Satellite Vision</span><strong id="scoreSatellite">--</strong></div>
+              <div class="source-row"><span>Signals</span><strong id="encroachmentType">--</strong></div>
+              <div class="source-row"><span>Satellite Evidence</span><strong id="satEvidence">--</strong></div>
+              <div class="source-row"><span>Temporal Evidence</span><strong id="beforeAfter">--</strong></div>
+            </section>
+
+            <section class="panel-card violations-card">
+              <h3>Active Violations</h3>
+              <p id="ruleNarrative" class="muted">No active violations detected.</p>
+              <p id="legalNarrative" class="muted">Violation narrative will appear here.</p>
+              <div class="flag-actions">
+                <button id="toggleFlagBtn" class="flag-btn" type="button" disabled>Unflag Violation</button>
+                <p id="flagMeta" class="muted">Select a location to flag or unflag.</p>
               </div>
-              <div>
-                <label>Temporal Change</label>
-                <strong id="scoreTemporal">--</strong>
-              </div>
-            </div>
-          </div>
+            </section>
 
-          <div class="panel-section">
-            <p class="panel-label">Encroachment Signals</p>
-            <p id="encroachmentType">--</p>
-            <p class="meta"><span>Satellite:</span> <span id="satEvidence">--</span></p>
-            <p class="meta"><span>Temporal:</span> <span id="beforeAfter">--</span></p>
-          </div>
+            <section class="panel-card framework-card">
+              <h3>Violation Categories Explained</h3>
+              <p class="muted">
+                Map shows only <strong>High / Medium / Low</strong> risk markers.
+                Detailed violation logic appears in this right panel.
+              </p>
+              <ul>
+                <li>Road & Footpath: setback breach + satellite footpath encroachment</li>
+                <li>Water Bodies: lake / nala / canal buffer intrusion</li>
+                <li>Cadastral: parcel spillover, coverage ratio, multi-parcel overlap</li>
+                <li>Temporal: unauthorized growth and incremental expansion</li>
+                <li>ML: composite risk score (0-100)</li>
+                <li>XAI: human-readable legal explanation</li>
+              </ul>
+            </section>
 
-          <div class="panel-section">
-            <p class="panel-label">Rule Narrative</p>
-            <p id="ruleNarrative">--</p>
-          </div>
+            <section class="panel-card analysis-card">
+              <h3>Generated Violation Analysis</h3>
+              <div id="generatedViolationAnalysis">Select a parcel to generate structured violation analysis.</div>
+            </section>
+          </aside>
+        </main>
+      </section>
+    </div>
 
-          <div class="panel-section">
-            <p class="panel-label">Generated Legal Narrative</p>
-            <p id="legalNarrative">--</p>
-          </div>
-        </aside>
-      </main>
+    <div id="loginOverlay" class="login-overlay hidden">
+      <form id="loginForm" class="login-card">
+        <h2>UrbanGuard Secure Access</h2>
+        <p class="muted">
+          Sign in to access violations.
+          Admin sees full Hyderabad; surveyors see assigned zones only.
+        </p>
+        <label>
+          Username
+          <input id="usernameInput" type="text" autocomplete="username" required />
+        </label>
+        <label>
+          Password
+          <input id="passwordInput" type="password" autocomplete="current-password" required />
+        </label>
+        <button id="loginBtn" type="submit">Login</button>
+        <div class="login-help">
+          <strong>Demo users</strong><br />
+          admin / admin@123 (full city)<br />
+          surveyor_north / surveyor1@123<br />
+          surveyor_south / surveyor2@123
+        </div>
+        <p id="loginError" class="login-error"></p>
+      </form>
     </div>
 
     <script
@@ -104,6 +146,6 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script type="module" src="./map.js?v=20260219h"></script>
+    <script type="module" src="./map.js?v=20260220d"></script>
   </body>
 </html>
