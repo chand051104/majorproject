@@ -44,6 +44,23 @@ let staticMode = false;
 let staticPayload = null;
 let staticFeatureById = new Map();
 
+function parsePossiblyInvalidJson(rawText) {
+  if (typeof rawText !== "string") return null;
+  try {
+    return JSON.parse(rawText);
+  } catch {
+    // Some generated payloads may contain non-JSON tokens (NaN/Infinity).
+    const normalized = rawText
+      .replace(/\b-?Infinity\b/g, "null")
+      .replace(/\bNaN\b/g, "null");
+    try {
+      return JSON.parse(normalized);
+    } catch {
+      return null;
+    }
+  }
+}
+
 function colorForRisk(category) {
   if (category === "High") return "#da3a1b";
   if (category === "Medium") return "#f0a202";
@@ -571,12 +588,16 @@ async function bootstrap() {
   try {
     const res = await fetch(STATIC_DATA_URL, { cache: "no-store" });
     if (res.ok) {
-      staticPayload = await res.json();
-      staticMode = true;
-      if (loginOverlay) loginOverlay.classList.add("hidden");
-      applyUserState();
-      await loadViolations();
-      return;
+      const raw = await res.text();
+      const parsed = parsePossiblyInvalidJson(raw);
+      if (parsed && Array.isArray(parsed.features)) {
+        staticPayload = parsed;
+        staticMode = true;
+        if (loginOverlay) loginOverlay.classList.add("hidden");
+        applyUserState();
+        await loadViolations();
+        return;
+      }
     }
   } catch {
     // Fallback to API mode.
