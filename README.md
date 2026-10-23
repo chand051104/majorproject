@@ -9,6 +9,16 @@ UrbanGuard AI is an end-to-end Hyderabad-scale urban violation detection platfor
 - Explainable AI Engine (feature contributions, narratives, SHAP top factor)
 - API + Interactive Dashboard
 
+## Dashboard preview
+
+The frontend includes a bundled 500-parcel preview dataset and can run in static mode without API credentials. Static hosting is read-only: running the pipeline and flagging records require API mode.
+
+The current backend does not implement the `/auth/*` and violation flagging endpoints requested by the API-mode frontend. The bundled static preview works, but secure API-mode login and flagging remain pending because implementing authentication changes the security model.
+
+![UrbanGuard dashboard at desktop width](docs/screenshots/after-1440.png)
+
+Before and after captures at 375, 768, and 1440 px are in [docs/DESIGN-BRIEF.md](docs/DESIGN-BRIEF.md).
+
 ## Architecture
 
 ```
@@ -66,9 +76,9 @@ venv/bin/python -m backend.cli run-pipeline --max-buildings 50000
 ```
 
 Outputs:
-- `/Users/saichandra/Documents/urban_ai/backend/data/urban_guard_results.parquet`
-- `/Users/saichandra/Documents/urban_ai/backend/data/urban_guard_results.geojson`
-- `/Users/saichandra/Documents/urban_ai/backend/data/urban_guard_summary.json`
+- `backend/data/urban_guard_results.parquet`
+- `backend/data/urban_guard_results.geojson`
+- `backend/data/urban_guard_summary.json`
 
 ## 3) Run API + Dashboard
 
@@ -92,9 +102,9 @@ Key endpoints:
 ## 4) Segmentation / Temporal Models
 
 Place trained models in:
-- `/Users/saichandra/Documents/urban_ai/models/segmentation_model.pt`
-- `/Users/saichandra/Documents/urban_ai/models/temporal_model.pt`
-- `/Users/saichandra/Documents/urban_ai/models/risk_model.pkl`
+- `models/segmentation_model.pt`
+- `models/temporal_model.pt`
+- `models/risk_model.pkl`
 
 Behavior:
 - If Sentinel Hub credentials are configured, satellite engine calls Processing API (`sentinel-2-l2a` by default) with `maxCloudCoverage` + `mosaickingOrder`.
@@ -125,7 +135,8 @@ Notes:
 
 ## 6) Production Notes
 
-- Tile requests are cached in `/Users/saichandra/Documents/urban_ai/backend/data/tile_cache`.
+- Tile requests are cached in `backend/data/tile_cache` by default.
+- Set `URBANGUARD_CORS_ORIGINS` to a comma-separated allowlist if the API is called from a separate frontend origin. Same-origin dashboard hosting does not need CORS.
 - Control remote usage with `URBANGUARD_MAX_REMOTE_TILES`.
 - Set `URBANGUARD_HISTORICAL_XYZ_TEMPLATE` for image-based temporal differencing.
 - Use `async_run=true` on `/pipeline/run` for long jobs.
@@ -134,7 +145,7 @@ Notes:
   - `URBANGUARD_LAYER_ROADS_URL`
   - `URBANGUARD_LAYER_PARCELS_URL`
   - `URBANGUARD_LAYER_WATER_URL`
-- Missing layers are downloaded once and cached in `URBANGUARD_LAYER_STORAGE_DIR` (default: `/Users/saichandra/Documents/urban_ai/backend/data/layers`).
+- Missing layers are downloaded once and cached in `URBANGUARD_LAYER_STORAGE_DIR` (default: `backend/data/layers`).
 - Expected format for fallback URLs: GeoParquet with a valid `geometry` column (EPSG can be transformed in-engine).
 
 ## 7) Tests
@@ -142,6 +153,8 @@ Notes:
 ```bash
 venv/bin/pytest -q
 ```
+
+GitHub Actions runs dependency, syntax, and test checks on pushes and pull requests. It disables remote imagery calls to keep CI deterministic and cost free.
 
 ## 8) Train Risk Model (Labeled Data)
 
@@ -161,19 +174,18 @@ docker build -t urbanguard-ai .
 docker run -p 8000:8000 --env-file .env urbanguard-ai
 ```
 
-## 10) Render Deployment
+## 10) Free static deployment (GitHub Pages)
 
-This repository includes a `render.yaml` blueprint for Docker deployment.
+The repository includes `.github/workflows/deploy-frontend-pages.yml`. It publishes the bundled static dashboard from `frontend/` when changes reach `main`; it does not host the Python API or run the data pipeline.
 
-1. Push repository to GitHub (`main` branch).
-2. In Render, choose **New +** -> **Blueprint**.
-3. Select this GitHub repository.
-4. Set secret environment variables in Render dashboard:
-   - `URBANGUARD_SENTINEL_CLIENT_ID`
-   - `URBANGUARD_SENTINEL_CLIENT_SECRET`
-   - Optional layer fallback URLs if local processed layers are unavailable:
-     - `URBANGUARD_LAYER_BUILDINGS_URL`
-     - `URBANGUARD_LAYER_ROADS_URL`
-     - `URBANGUARD_LAYER_PARCELS_URL`
-     - `URBANGUARD_LAYER_WATER_URL`
-5. Deploy. Render will build using `Dockerfile` and route traffic to `/health`.
+1. In GitHub, open **Settings → Pages** and set the source to **GitHub Actions**.
+2. Merge the reviewed branch into `main` after approval. The existing workflow publishes the dashboard.
+3. Open the deployment URL shown in the Pages workflow run.
+
+Cloudflare Pages is a static-host backup: create a project from this GitHub repository, set the build command to none, and set the output directory to `frontend`. It has the same static-mode limitations.
+
+## 11) Optional API deployment (Render)
+
+This repository also includes a `render.yaml` Docker blueprint. The free web service sleeps after 15 minutes of inactivity, has ephemeral storage, and is resource constrained; the city-scale pipeline may exceed those limits. Sentinel Hub and fallback layer URLs are optional and should only be set if you use those integrations.
+
+For the static dashboard no environment variables or database are required. `Live URL: not deployed yet`.
