@@ -261,12 +261,19 @@ function popupHtmlForFeature(feature) {
   const type = props.encroachment_type || props.satellite_evidence || "none";
   const category = props.risk_category || "Low";
   const tone = riskTone(category);
+  const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  })[character]);
   return `
     <div class="map-popup tone-${tone}">
-      <div class="map-popup-title">${parcelId ?? "Location"}</div>
-      <div class="map-popup-row"><span>Risk:</span><strong class="risk-${tone}">${category}</strong></div>
+      <div class="map-popup-title">${escapeHtml(parcelId ?? "Location")}</div>
+      <div class="map-popup-row"><span>Risk:</span><strong class="risk-${tone}">${escapeHtml(category)}</strong></div>
       <div class="map-popup-row"><span>Probability:</span><strong>${score}%</strong></div>
-      <div class="map-popup-row"><span>Signals:</span><strong>${String(type).replaceAll("_", " ")}</strong></div>
+      <div class="map-popup-row"><span>Signals:</span><strong>${escapeHtml(String(type).replaceAll("_", " "))}</strong></div>
     </div>
   `;
 }
