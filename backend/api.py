@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from threading import Lock
@@ -103,6 +104,14 @@ def _row_to_payload(row: Any, crs: Any) -> dict[str, Any]:
 
 
 if FASTAPI_AVAILABLE:
+    _cors_origins = [
+        origin.strip()
+        for origin in os.getenv(
+            "URBANGUARD_CORS_ORIGINS",
+            "http://localhost:4173,http://127.0.0.1:4173",
+        ).split(",")
+        if origin.strip()
+    ]
     app = FastAPI(
         title="UrbanGuard AI API",
         description="Urban-scale encroachment detection pipeline for Hyderabad.",
@@ -110,8 +119,8 @@ if FASTAPI_AVAILABLE:
     )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
+        allow_origins=_cors_origins,
+        allow_credentials=False,
         allow_methods=["*"],
         allow_headers=["*"],
     )
