@@ -4,12 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UrbanGuard AI Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <meta name="description" content="UrbanGuard helps city teams review urban violations, risk signals, and parcel evidence across Hyderabad." />
+    <meta property="og:title" content="UrbanGuard AI Dashboard" />
+    <meta property="og:description" content="Review urban risk signals and parcel evidence across Hyderabad." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#f3f6f5" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <a class="skip-link" href="#map">Skip to map</a>
     <div class="layout-shell">
       <aside class="left-rail" aria-label="Primary navigation">
         <button class="rail-btn active" type="button" title="UrbanGuard">🛡️</button>
@@ -42,7 +43,7 @@
 
         <main class="content-grid">
           <section class="map-panel">
-            <div id="map"></div>
+            <div id="map" tabindex="-1" aria-label="Map of urban violation risk in Hyderabad"></div>
             <div class="risk-legend" aria-label="Risk legend">
               <h3>RISK LEGEND</h3>
               <p><i class="dot dot-high"></i>High Risk (&gt;75)</p>
@@ -132,10 +133,7 @@
         </label>
         <button id="loginBtn" type="submit">Login</button>
         <div class="login-help">
-          <strong>Demo users</strong><br />
-          admin / admin@123 (full city)<br />
-          surveyor_north / surveyor1@123<br />
-          surveyor_south / surveyor2@123
+          Access is provisioned by your system administrator.
         </div>
         <p id="loginError" class="login-error"></p>
       </form>

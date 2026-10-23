@@ -1,29 +1,26 @@
 :root {
-  --bg: #eef2f8;
+  --bg: #f3f6f5;
   --panel: #ffffff;
-  --line: #e2e8f3;
-  --text: #1f2a3d;
-  --muted: #70809a;
-  --primary: #4f46e5;
-  --primary-strong: #4338ca;
-  --accent: #06b6d4;
+  --line: #d7e1de;
+  --text: #183033;
+  --muted: #5d7072;
+  --primary: #145d5a;
+  --primary-strong: #104744;
+  --accent: #c4ded7;
   --high: #ef4444;
   --medium: #f97316;
   --low: #16a34a;
-  --shadow-soft: 0 8px 30px rgba(28, 43, 73, 0.08);
-  --shadow-card: 0 6px 22px rgba(31, 42, 61, 0.07);
+  --shadow-soft: 0 8px 24px rgba(24, 48, 51, 0.12);
+  --shadow-card: 0 2px 10px rgba(24, 48, 51, 0.045);
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.1), transparent 38%),
-    radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.08), transparent 34%),
-    var(--bg);
+  background: var(--bg);
   color: var(--text);
-  font-family: Inter, sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .layout-shell {
@@ -588,4 +585,196 @@ body {
   .left-rail { display: none; }
   .content-grid { grid-template-columns: 1fr; }
   .map-panel { min-height: 54vh; }
+}
+
+/* Civic operations console refinements */
+:focus-visible {
+  outline: 3px solid #16847d;
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 2000;
+  top: 8px;
+  left: 8px;
+  transform: translateY(-160%);
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--primary-strong);
+  color: white;
+  font-weight: 700;
+}
+
+.skip-link:focus { transform: translateY(0); }
+
+.layout-shell {
+  grid-template-columns: 64px minmax(0, 1fr);
+  background: var(--bg);
+}
+
+.left-rail {
+  background: #e8efed;
+  border-color: var(--line);
+  box-shadow: none;
+}
+
+.rail-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border-color: #cbd8d4;
+  background: #f7faf9;
+  transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.rail-btn.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  box-shadow: 0 3px 10px rgba(20, 93, 90, 0.2);
+}
+
+.workspace { grid-template-rows: 72px minmax(0, 1fr); }
+
+.topbar {
+  padding: 0 24px;
+  background: rgba(255, 255, 255, 0.96);
+  border-color: var(--line);
+  backdrop-filter: blur(8px);
+}
+
+.brand-row { gap: 12px; min-width: 0; }
+.brand-row h1 { color: var(--text); font-size: 24px; letter-spacing: -0.035em; }
+
+.city-pill {
+  border-color: #bfd5ce;
+  background: #edf5f2;
+  color: var(--primary-strong);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+.topbar-right { gap: 8px; }
+
+.run-btn, .login-card button {
+  min-height: 44px;
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+  transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.run-btn:hover, .login-card button:hover {
+  transform: translateY(-1px);
+  background: var(--primary-strong);
+  box-shadow: 0 5px 14px rgba(20, 93, 90, 0.16);
+}
+
+.logout-btn, .flag-btn {
+  min-height: 44px;
+  border-radius: 8px;
+  border-color: #c6d4d0;
+  color: #294648;
+  transition: background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.logout-btn:hover, .flag-btn:hover:not(:disabled) {
+  transform: none;
+  background: #f0f6f4;
+  box-shadow: 0 2px 8px rgba(24, 48, 51, 0.08);
+}
+
+.status-badge, .user-scope-badge {
+  border-color: #d3dfdc;
+  background: #f4f8f6;
+  color: #405a5b;
+}
+
+.content-grid {
+  grid-template-columns: minmax(0, 1fr) 390px;
+  min-width: 0;
+}
+
+.map-panel { background: #e2eae7; border-color: var(--line); }
+#map { min-height: 0; }
+
+.risk-legend {
+  border-color: var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow-soft);
+}
+
+.right-panel {
+  gap: 12px;
+  padding: 16px;
+  background: #f7f9f8;
+}
+
+.panel-card {
+  border-color: var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.panel-card:hover { transform: none; box-shadow: 0 4px 14px rgba(24, 48, 51, 0.07); }
+.parcel-header h2 { color: var(--text); }
+.risk-chip { min-height: 36px; border-color: #d2ddda; }
+
+.stat-box {
+  border-color: #dbe5e2;
+  border-radius: 10px;
+  background: #f7faf9;
+}
+
+.stat-box p, .muted { color: #53696b; }
+.source-row { border-color: #e8efed; }
+.source-row span, .framework-card ul { color: #52686a; }
+.source-row strong { color: #1d3a3c; }
+
+.analysis-card #generatedViolationAnalysis {
+  border-color: #dbe5e2;
+  border-radius: 8px;
+  background: #f6f9f8;
+  color: #294648;
+}
+
+.login-overlay { background: rgba(16, 45, 45, 0.52); }
+.login-card { border-color: var(--line); border-radius: 12px; }
+.login-card input { min-height: 44px; border-color: #cbd8d4; border-radius: 8px; }
+.login-card input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(20, 93, 90, 0.16); }
+
+@media (max-width: 1024px) {
+  .layout-shell { height: auto; min-height: 100vh; grid-template-columns: minmax(0, 1fr); }
+  .workspace { min-height: 100vh; grid-template-rows: auto 1fr; }
+  .content-grid { grid-template-columns: minmax(0, 1fr); }
+  .map-panel { min-height: 48vh; border-right: 0; border-bottom: 1px solid var(--line); }
+  #map { height: 48vh; min-height: 340px; }
+  .right-panel { overflow: visible; }
+}
+
+@media (max-width: 600px) {
+  .topbar { position: relative; align-items: flex-start; flex-direction: column; gap: 10px; padding: 14px 16px; }
+  .brand-row { width: 100%; justify-content: space-between; }
+  .brand-row h1 { font-size: 21px; }
+  .city-pill { padding: 6px 10px; }
+  .topbar-right { width: 100%; justify-content: flex-start; gap: 8px; }
+  .topbar-right .status-badge { margin-left: auto; }
+  .run-btn, .logout-btn { padding: 8px 10px; }
+  .status-badge, .user-scope-badge { padding: 7px 9px; font-size: 11px; }
+  .right-panel { padding: 12px; gap: 10px; }
+  .panel-card { padding: 12px; }
+  .stat-grid { gap: 8px; }
+  .stat-box { padding: 10px; }
+  .stat-box h3 { font-size: 32px; }
+  .source-card h3, .violations-card h3, .framework-card h3, .analysis-card h3 { font-size: 18px; }
+  .risk-legend { right: 10px; bottom: 10px; min-width: 0; padding: 8px 10px; }
+  .risk-legend p { font-size: 12px; }
+  .login-card { width: min(420px, calc(100vw - 24px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }

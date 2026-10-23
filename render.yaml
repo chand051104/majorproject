@@ -35,3 +35,5 @@ services:
         sync: false
       - key: URBANGUARD_SENTINEL_CLIENT_SECRET
         sync: false
+      - key: URBANGUARD_USERS_JSON
+        sync: false

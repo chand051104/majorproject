@@ -1,13 +1,27 @@
 venv/
+.venv/
+node_modules/
+build/
+dist/
 __pycache__/
 *.pyc
 .env
+.env.*
+!.env.example
 .DS_Store
 backend/data/
 models/*.pt
 models/*.pkl
 .pytest_cache/
+.coverage
+coverage/
 *.log
+*.pem
+*.key
+*.p12
+*.pfx
+out/
+outputs/
 
 # Large raw GIS/source artifacts (keep outside git)
 hyd_cadastral copy.geojson
