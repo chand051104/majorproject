@@ -5,13 +5,17 @@ const API_BASE =
   (() => {
     const { protocol, hostname, port, origin } = window.location;
     if (!hostname) return "http://127.0.0.1:8000";
-    if (port === "8000") return origin;
+    if (window.location.pathname.startsWith("/dashboard/") || port === "8000") return origin;
     return `${protocol}//${hostname}:8000`;
   })();
 
 const DEFAULT_CENTER = [17.385, 78.4867];
 const STATIC_DATA_URL = "./data/violations_payload.json";
 const AUTH_TOKEN_KEY = "urbanguard_auth_token";
+const API_MODE =
+  window.URBANGUARD_API_MODE === true ||
+  window.location.pathname.startsWith("/dashboard/") ||
+  new URLSearchParams(window.location.search).get("mode") === "api";
 
 const map = L.map("map", { zoomControl: true, preferCanvas: true }).setView(DEFAULT_CENTER, 11);
 const canvasRenderer = L.canvas({ padding: 0.5 });
@@ -36,7 +40,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 let violationsLayer = null;
-let authToken = localStorage.getItem(AUTH_TOKEN_KEY) || "";
+let authToken = sessionStorage.getItem(AUTH_TOKEN_KEY) || "";
 let currentUser = null;
 let selectedParcelId = null;
 let selectedIsUnflagged = false;
@@ -91,9 +95,9 @@ function radiusForScore(score) {
 function setAuthToken(token) {
   authToken = token || "";
   if (authToken) {
-    localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+    sessionStorage.setItem(AUTH_TOKEN_KEY, authToken);
   } else {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
+    sessionStorage.removeItem(AUTH_TOKEN_KEY);
   }
 }
 
@@ -572,7 +576,7 @@ if (loginForm) {
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const username = String(usernameInput?.value || "").trim();
-    const password = String(passwordInput?.value || "").trim();
+    const password = String(passwordInput?.value || "");
     if (!username || !password) {
       if (loginError) loginError.textContent = "Enter both username and password.";
       return;
@@ -583,7 +587,13 @@ if (loginForm) {
       hideLogin();
       await loadViolations();
     } catch (error) {
-      if (loginError) loginError.textContent = "Invalid credentials. Try a demo user.";
+      if (loginError) {
+        loginError.textContent = error?.status === 503
+          ? "API authentication is not configured. Ask the administrator to configure access."
+          : error?.status === 429
+            ? "Too many login attempts. Try again in 15 minutes."
+            : "Invalid username or password.";
+      }
       setAuthToken("");
       currentUser = null;
       applyUserState();
@@ -592,22 +602,24 @@ if (loginForm) {
 }
 
 async function bootstrap() {
-  try {
-    const res = await fetch(STATIC_DATA_URL, { cache: "no-store" });
-    if (res.ok) {
-      const raw = await res.text();
-      const parsed = parsePossiblyInvalidJson(raw);
-      if (parsed && Array.isArray(parsed.features)) {
-        staticPayload = parsed;
-        staticMode = true;
-        if (loginOverlay) loginOverlay.classList.add("hidden");
-        applyUserState();
-        await loadViolations();
-        return;
+  if (!API_MODE) {
+    try {
+      const res = await fetch(STATIC_DATA_URL, { cache: "no-store" });
+      if (res.ok) {
+        const raw = await res.text();
+        const parsed = parsePossiblyInvalidJson(raw);
+        if (parsed && Array.isArray(parsed.features)) {
+          staticPayload = parsed;
+          staticMode = true;
+          if (loginOverlay) loginOverlay.classList.add("hidden");
+          applyUserState();
+          await loadViolations();
+          return;
+        }
       }
+    } catch {
+      // Fall back to API mode when the static preview is unavailable.
     }
-  } catch {
-    // Fallback to API mode.
   }
 
   if (!authToken) {

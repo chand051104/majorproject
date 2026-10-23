@@ -67,6 +67,25 @@ venv/bin/pip install -r requirements.txt
 cp .env.example .env
 ```
 
+### API authentication
+
+API mode fails closed until at least one account is configured. Create a scrypt password hash locally; the command prompts without echoing the password (minimum 12 characters):
+
+```bash
+venv/bin/python -m backend.security
+```
+
+Set `URBANGUARD_USERS_JSON` in the ignored `.env` file or the hosting provider's secret settings. Store only the generated hash, never the password:
+
+```json
+[
+  {"username":"admin","password_hash":"scrypt-v1$...","role":"admin","display_name":"Operations Admin","area_name":"All Hyderabad","area_bbox":null},
+  {"username":"north","password_hash":"scrypt-v1$...","role":"surveyor","display_name":"North Surveyor","area_name":"Assigned zone","area_bbox":[78.3,17.3,78.5,17.5]}
+]
+```
+
+Admin accounts must use `area_bbox: null`; surveyors must have a valid WGS84 bounding box. API login uses expiring, opaque bearer tokens stored in the browser's session storage; server-side sessions are held in memory and are invalidated on restart. Login attempts are rate limited. The dashboard served under `/dashboard/` uses API mode; static hosting and local static previews stay read-only. `?mode=api` forces API mode for local frontend testing.
+
 ## 2) Run Pipeline
 
 ```bash
@@ -137,6 +156,7 @@ Notes:
 
 - Tile requests are cached in `backend/data/tile_cache` by default.
 - Set `URBANGUARD_CORS_ORIGINS` to a comma-separated allowlist if the API is called from a separate frontend origin. Same-origin dashboard hosting does not need CORS.
+- Configure `URBANGUARD_USERS_JSON` on the API host before enabling API mode. Flag/unflag records are written atomically to `URBANGUARD_UNFLAGGED_PATH` (default `backend/data/unflagged_records.json`). That file is local storage, not a multi-instance database; Render Free's filesystem is ephemeral, so reviewed flags do not survive a restart or redeploy there.
 - Control remote usage with `URBANGUARD_MAX_REMOTE_TILES`.
 - Set `URBANGUARD_HISTORICAL_XYZ_TEMPLATE` for image-based temporal differencing.
 - Use `async_run=true` on `/pipeline/run` for long jobs.
